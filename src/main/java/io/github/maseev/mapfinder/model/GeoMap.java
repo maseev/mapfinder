@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class Map {
+public class GeoMap {
 
   private int id;
   private List<Point> polygon;
