@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration packages="io.github.maseev">
+    <Appenders>
+        <Console name="CONSOLE"
+                 target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="CONSOLE"/>
+        </Root>
+
+        <Logger name="io.github.maseev" level="info"/>
+        <Logger name="org.apache" level="warn"/>
+        <Logger name="org.springframework" level="warn"/>
+        <Logger name="org.springframework.web" level="warn"/>
+    </Loggers>
+</Configuration>
