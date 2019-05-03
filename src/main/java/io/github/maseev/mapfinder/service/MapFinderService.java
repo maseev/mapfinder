@@ -1,8 +1,9 @@
 package io.github.maseev.mapfinder.service;
 
-import io.github.maseev.mapfinder.model.GeoMap;
+import io.github.maseev.mapfinder.model.Point;
+import java.util.List;
 
 public interface MapFinderService {
 
-  boolean contains(GeoMap map, double latitude, double longitude);
+  boolean contains(List<Point> polygon, double latitude, double longitude);
 }

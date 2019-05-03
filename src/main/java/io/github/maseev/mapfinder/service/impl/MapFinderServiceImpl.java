@@ -1,6 +1,5 @@
 package io.github.maseev.mapfinder.service.impl;
 
-import io.github.maseev.mapfinder.model.GeoMap;
 import io.github.maseev.mapfinder.model.Point;
 import io.github.maseev.mapfinder.service.MapFinderService;
 import java.util.List;
@@ -10,9 +9,7 @@ import org.springframework.stereotype.Service;
 public class MapFinderServiceImpl implements MapFinderService {
 
   @Override
-  public boolean contains(GeoMap map, double latitude, double longitude) {
-    List<Point> polygon = map.getPolygon();
-
+  public boolean contains(List<Point> polygon, double latitude, double longitude) {
     if (polygon.size() < 3) {
       return false;
     }
