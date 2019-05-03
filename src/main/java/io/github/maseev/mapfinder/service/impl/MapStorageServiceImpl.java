@@ -7,9 +7,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 import io.github.maseev.mapfinder.model.GeoMap;
 import io.github.maseev.mapfinder.model.Point;
-import io.github.maseev.mapfinder.service.MapFinderService;
 import io.github.maseev.mapfinder.service.MapStorageService;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ public class MapStorageServiceImpl implements MapStorageService {
   private static final String EXECUTOR_NAME = "EXECUTOR";
 
   private final Map<Integer, List<Point>> maps;
-  private final MapFinderService mapFinderService;
   private final HazelcastInstance instance;
 
   private final int processingTimeout;
@@ -39,13 +38,11 @@ public class MapStorageServiceImpl implements MapStorageService {
   private static class ContainsTask implements Callable<List<Integer>>, Serializable,
     HazelcastInstanceAware {
 
-    private final transient MapFinderService mapFinderService;
     private final double latitude;
     private final double longitude;
     private transient HazelcastInstance instance;
 
-    ContainsTask(MapFinderService mapFinderService, double latitude, double longitude) {
-      this.mapFinderService = mapFinderService;
+    ContainsTask(double latitude, double longitude) {
       this.latitude = latitude;
       this.longitude = longitude;
     }
@@ -61,7 +58,7 @@ public class MapStorageServiceImpl implements MapStorageService {
       List<Integer> mapIds = new ArrayList<>();
 
       for (Integer mapId : map.localKeySet() ) {
-        if (mapFinderService.contains(map.get(mapId), latitude, longitude)) {
+        if (MapFinderUtil.contains(map.get(mapId), latitude, longitude)) {
           mapIds.add(mapId);
         }
       }
@@ -71,9 +68,7 @@ public class MapStorageServiceImpl implements MapStorageService {
   }
 
   @Autowired
-  public MapStorageServiceImpl(MapFinderService mapFinderService,
-                               @Value("${processing.timeout.min}") int processingTimeout) {
-    this.mapFinderService = mapFinderService;
+  public MapStorageServiceImpl(@Value("${processing.timeout.min}") int processingTimeout) {
     this.processingTimeout = processingTimeout;
 
     Config config = new Config();
@@ -93,9 +88,15 @@ public class MapStorageServiceImpl implements MapStorageService {
   public List<Integer> contains(double latitude, double longitude) throws InterruptedException,
     ExecutionException, TimeoutException {
     IExecutorService executorService = instance.getExecutorService( EXECUTOR_NAME );
-    Future<List<Integer>> future =
-      executorService.submit(new ContainsTask(mapFinderService, latitude, longitude));
+    Map<Member, Future<List<Integer>>> futures =
+      executorService.submitToAllMembers(new ContainsTask(latitude, longitude));
 
-    return future.get(processingTimeout, TimeUnit.MINUTES);
+    List<Integer> mapIds = new ArrayList<>();
+
+    for (Future<List<Integer>> future : futures.values()) {
+      mapIds.addAll(future.get(processingTimeout, TimeUnit.MINUTES));
+    }
+
+    return mapIds;
   }
 }

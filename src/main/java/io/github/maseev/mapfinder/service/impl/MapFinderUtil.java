@@ -1,15 +1,14 @@
 package io.github.maseev.mapfinder.service.impl;
 
 import io.github.maseev.mapfinder.model.Point;
-import io.github.maseev.mapfinder.service.MapFinderService;
 import java.util.List;
-import org.springframework.stereotype.Service;
 
-@Service
-public class MapFinderServiceImpl implements MapFinderService {
+public final class MapFinderUtil {
 
-  @Override
-  public boolean contains(List<Point> polygon, double latitude, double longitude) {
+  private MapFinderUtil() {
+  }
+
+  public static boolean contains(List<Point> polygon, double latitude, double longitude) {
     if (polygon.size() < 3) {
       return false;
     }
