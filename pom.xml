@@ -13,7 +13,7 @@
 
   <groupId>io.github.maseev</groupId>
   <artifactId>mapfinder</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0.RELEASE</version>
   <name>mapfinder</name>
   <description>Take-home assignment for Vigo</description>
 
